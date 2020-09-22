@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>dne.PSMSBuildHelper</id>
+    <version>0.1.0</version>
+    <title>dne.PSMSBuildHelper</title>
+    <authors>Jens Hofmann</authors>
+    <owners>Jens Hofmann</owners>
+    <licenseUrl>http://dotnet-expert.com</licenseUrl>
+    <projectUrl>http://dotnet-expert.com</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>PSMSBuildHelper
+============================
+
+Currently contains 2 functions:
+- Get-LatestMSBuildExecutablePath (Gets the path to the latests msbuild.exe)
+- Get-EvaluatedMSBuildProperty (Can evaluate one or multiple properties in an msbuild script file)
+</description>
+    <summary>Powershell Module containing MSBuild helper functions.</summary>
+    <releaseNotes>First public release</releaseNotes>
+    <copyright>(c) 2020 Jens Hofmann</copyright>
+    <language>en-US</language>
+    <tags>PSModule PowerShell MSBuild</tags>
+    <dependencies/>
+  </metadata>
+  <files>
+    <file src="..\PSMSBuildHelper\**\*.*" exclude="*.nupkg" />
+  </files>
+</package>

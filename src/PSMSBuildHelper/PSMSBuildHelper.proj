@@ -1,0 +1,60 @@
+<Project DefaultTargets="Default">
+	<Target Name="Default">
+		<Message Importance="High" Text="Don't be so curious!"/>
+	</Target>
+
+	<Target Name="PSMSBuildHelper_EvaluateProperties">
+		<Error Text="The property 'ProjectFilePath' is empty, but is required." Condition="'$(ProjectFilePath)' == ''" />
+		<Error Text="Project '$(ProjectFilePath)' does not exist." Condition="!Exists('$(ProjectFilePath)')" />
+		<Error Text="The property 'PropertiesToEvaluate' is empty, but is required." Condition="'$(PropertiesToEvaluate)' == ''" />
+
+		<EvaluateMSBuildProperties ProjectFilePath="$(ProjectFilePath)" PropertiesToEvaluate="$(PropertiesToEvaluate)" PropertiesToInitialize="$(PropertiesToInitialize)"/>
+	</Target>
+
+	<UsingTask TaskName="EvaluateMSBuildProperties" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+		<ParameterGroup>
+			<ProjectFilePath ParameterType="System.String" Required="true" />
+			<PropertiesToEvaluate ParameterType="System.String" Required="true" />
+			<PropertiesToInitialize ParameterType="System.String" Required="false" />
+		</ParameterGroup>
+		<Task>
+			<Reference Include="System.Xml" />
+			<Reference Include="Microsoft.Build" />
+			<Using Namespace="System.Collections.Generic" />
+			<Using Namespace="Microsoft.Build.Evaluation" />
+
+			<Code Type="Fragment" Language="cs"><![CDATA[
+				Dictionary<string, string> initProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
+				if (PropertiesToInitialize != null && PropertiesToInitialize.Length > 0)
+				{
+					foreach (string initProperty in PropertiesToInitialize.Split(';'))
+					{
+						string[] nameAndValue = initProperty.Split('|');
+						string propertyName = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(nameAndValue[0]));
+						string propertyValue = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(nameAndValue[1]));
+						
+						initProperties[propertyName] = propertyValue;
+					}
+				}
+
+				ProjectCollection projectCollection = new ProjectCollection(initProperties);
+				Project project = projectCollection.LoadProject(ProjectFilePath);
+
+				string[] propertyNamesToValuate = PropertiesToEvaluate.Split(';');
+				
+				for (int i = 0; i < propertyNamesToValuate.Length; i++)
+				{
+					string propertyName = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(propertyNamesToValuate[i]));
+					string propertyValue = project.GetPropertyValue(propertyName);
+
+					string encodedPropertyName = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(propertyName));
+					string encodedPropertyValue = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(propertyValue));
+
+					Console.WriteLine(encodedPropertyName+"|"+encodedPropertyValue);
+				}
+			]]>
+			</Code>
+		</Task>
+	</UsingTask>
+</Project>

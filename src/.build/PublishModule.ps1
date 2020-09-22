@@ -1,0 +1,1 @@
+Publish-Module -Path '..\PSMSBuildHelper' -NuGetApiKey (Read-Host -Prompt 'NuGetApiKey: ')
